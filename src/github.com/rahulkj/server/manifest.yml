@@ -1,8 +1,8 @@
 ---
 applications:
-- name: hello
+- name: server
   memory: 8M
   instances: 1
   buildpack: https://github.com/michaljemala/cloudfoundry-buildpack-go.git
-  host: hello-go
-  path: ./github.com/rahulkj/hello
+  host: server
+  path: .

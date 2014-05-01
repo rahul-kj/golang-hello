@@ -15,48 +15,22 @@ const (
    Language = "Go"
 )
 
-func junk() {
-
-    PointerExample()
-
-    MathExample()
-
-    StructureExample()
-
-    ConstantUsage()
-
-    ClosureExample()
-
-	chann := make(chan bool)
-
-    persons := person.Persons{{"Amanda", "X", 20}, {"Gerry", "Y", 32}, {"John", "Z", 45}}
-    go func() {
-		persons.BranchingExample()
-		chann <- true
-	}()
-
-	persons.BranchingExample()
-
-    TypeSwitchExample(3.20)
-
-    fmt.Println(MapExample("US"))
-
-	SliceExample()
-
-	<- chann
-
-}
-
 const (
 	HostVar = "VCAP_APP_HOST"
 	PortVar = "VCAP_APP_PORT"
 )
 
+type T struct {
+	A string
+	B []int
+}
+
 func main() {
 	log := make(log4go.Logger)
 	log.AddFilter("stdout", log4go.DEBUG, log4go.NewConsoleLogWriter())
 
-	http.HandleFunc("/", hello)
+	http.HandleFunc("/", helloThere)
+	http.HandleFunc("/junk", junk)
 	var port string
 	if port = os.Getenv(PortVar); port == "" {
 		port = "8080"
@@ -67,69 +41,86 @@ func main() {
 	}
 }
 
+func helloThere(res http.ResponseWriter, req *http.Request) {
+	// Dump ENV
+	fmt.Fprint(res, "ENV:\n")
+	env := os.Environ()
+	for _, e := range env {
+		fmt.Fprintln(res, e)
+	}
+	fmt.Fprint(res, "\nYAML:\n")
 
-func ConstantUsage() {
-    fmt.Println(PI, Language)
+	//Dump some YAML
+	t := T{A: "Foo", B: []int{1, 2, 3}}
+	if d, err := goyaml.Marshal(&t); err != nil {
+		fmt.Fprintf(res, "Unable to dump YAML")
+	} else {
+		fmt.Fprintf(res, "--- t dump:\n%s\n\n", string(d))
+	}
 }
 
-func StructureExample() {
-    var p = person.Person{"Mary", "Dis", 30}
-    fmt.Println(p.FName, p.LName, p.Age)
+func ConstantUsage(res http.ResponseWriter) {
+    fmt.Println(res, PI, Language)
+}
+
+func StructureExample(res http.ResponseWriter) {
+    var p = hello.Person{"Mary", "Dis", 30}
+    fmt.Fprintf(res, p.FName, p.LName, p.Age)
 
     // Update the fName of variable person
     p.FName = "Test"
-    fmt.Println(p.FName, p.LName, p.Age)
+    fmt.Fprintf(res, p.FName, p.LName, p.Age)
 
     // Update the values of variable person by passing in the reference
-    person.UpdatePerson(&p)
-    fmt.Println("Updated Person", p.FName, p.LName, p.Age)
+    hello.UpdatePerson(&p)
+    fmt.Fprintf(res, "Updated Person", p.FName, p.LName, p.Age)
 
 	p.Rename("RJ")
-	fmt.Println(p.FName, p.LName, p.Age)
+	fmt.Fprintf(res, p.FName, p.LName, p.Age)
 
 }
 
-func MathExample() {
+func MathExample(res http.ResponseWriter) {
     // short form of declaring int variables
     a, b, c := 1, 2, 3
 
     fmt.Println(a, b, c)
 
     // Perform addition of two variables
-    fmt.Println("Sum of", a, "and", b, "is =", newmath.Addition(a, b))
+    fmt.Fprintf(res, "Sum of", a, "and", b, "is =", hello.Addition(a, b))
 
     // Perform math operations on two variables
-    add, sub, multi, div := newmath.Compute(c, b)
-    fmt.Println(add, sub, multi, div)
+    add, sub, multi, div := hello.Compute(c, b)
+    fmt.Println(res, add, sub, multi, div)
 
     // Perform math operations on two variables - call EnhancedCompute
-    add, sub, multi, div = newmath.EnhancedCompute(a, b)
-    fmt.Println(add, sub, multi, div)
+    add, sub, multi, div = hello.EnhancedCompute(a, b)
+    fmt.Println(res, add, sub, multi, div)
 
 }
 
-func PointerExample() {
+func PointerExample(res http.ResponseWriter) {
     // short form of declaring string variables
     message := "Test hello \n"
     // Declaring a variable of type Person
 
     var greeting *string = &message
 
-    fmt.Printf(message)
-    fmt.Printf("Hello world! \n")
+    fmt.Fprintf(res, message)
+    fmt.Fprintf(res, "Hello world! \n")
 
-    fmt.Println(greeting, *greeting)
-    fmt.Println(message, *greeting)
+    fmt.Println(res, greeting, *greeting)
+    fmt.Println(res, message, *greeting)
 
     *greeting = "Updated"
-    fmt.Println(message, *greeting)
+    fmt.Fprintf(res, message, *greeting)
 }
 
-func ClosureExample() {
-	newprinter.Print("Rahul", newprinter.PrintNoLine)
+func ClosureExample(res http.ResponseWriter) {
+	fmt.Fprintf(res, "Rahul", hello.PrintNoLine)
 
-	newprinter.Print("Rahul", newprinter.PrintLine)
-	newprinter.Print("Rahul", newprinter.CustomPrintLine("LOL"))
+	fmt.Fprintf(res, "Rahul", hello.PrintLine)
+	fmt.Fprintf(res, "Rahul", hello.CustomPrintLine("LOL"))
 }
 
 func TypeSwitchExample(x interface{}) {
@@ -184,25 +175,35 @@ func SliceExample() {
 	fmt.Println(s)
 }
 
-type T struct {
-	A string
-	B []int
+func junk(res http.ResponseWriter, req *http.Request) {
+
+    PointerExample(res)
+
+    MathExample(res)
+
+    StructureExample(res)
+
+    ConstantUsage(res)
+
+    ClosureExample(res)
+
+	chann := make(chan bool)
+
+    persons := hello.Persons{{"Amanda", "X", 20}, {"Gerry", "Y", 32}, {"John", "Z", 45}}
+    go func() {
+		persons.BranchingExample()
+		chann <- true
+	}()
+
+	persons.BranchingExample()
+
+    TypeSwitchExample(3.20)
+
+    fmt.Println(MapExample("US"))
+
+	SliceExample()
+
+	<- chann
+
 }
 
-func hello(res http.ResponseWriter, req *http.Request) {
-	// Dump ENV
-	fmt.Fprint(res, "ENV:\n")
-	env := os.Environ()
-	for _, e := range env {
-		fmt.Fprintln(res, e)
-	}
-	fmt.Fprint(res, "\nYAML:\n")
-
-	//Dump some YAML
-	t := T{A: "Foo", B: []int{1, 2, 3}}
-	if d, err := goyaml.Marshal(&t); err != nil {
-		fmt.Fprintf(res, "Unable to dump YAML")
-	} else {
-		fmt.Fprintf(res, "--- t dump:\n%s\n\n", string(d))
-	}
-}
