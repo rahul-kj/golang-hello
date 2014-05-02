@@ -1,5 +1,5 @@
 .project
 .DS_Store
-/bin
-/pkg
-/staging/bin
+bin/
+pkg/
+staging/bin/
