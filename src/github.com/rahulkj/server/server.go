@@ -6,7 +6,9 @@ import (
 //	"launchpad.net/goyaml"
 	"net/http"
 	"os"
-	"github.com/rahulkj/hello"
+	"github.com/rahulkj/newmath"
+	"github.com/rahulkj/newprinter"
+	"github.com/rahulkj/person"
 )
 
 // Declaring constants
@@ -55,7 +57,7 @@ func ConstantUsage(res http.ResponseWriter, req *http.Request) {
 }
 
 func StructureExample(res http.ResponseWriter, req *http.Request) {
-    var p = hello.Person{"Mary", "Dis", 30}
+    var p = person.Person{"Mary", "Dis", 30}
     fmt.Fprintf(res, p.FName, p.LName, p.Age)
 
     // Update the fName of variable person
@@ -63,7 +65,7 @@ func StructureExample(res http.ResponseWriter, req *http.Request) {
     fmt.Fprintf(res, p.FName, p.LName, p.Age)
 
     // Update the values of variable person by passing in the reference
-    hello.UpdatePerson(&p)
+    person.UpdatePerson(&p)
     fmt.Fprintf(res, "Updated Person", p.FName, p.LName, p.Age)
 
 	p.Rename("RJ")
@@ -78,14 +80,14 @@ func MathExample(res http.ResponseWriter, req *http.Request) {
     fmt.Println(a, b, c)
 
     // Perform addition of two variables
-    fmt.Fprintf(res, "Sum of", a, "and", b, "is =", hello.Addition(a, b))
+    fmt.Fprintf(res, "Sum of", a, "and", b, "is =", newmath.Addition(a, b))
 
     // Perform math operations on two variables
-    add, sub, multi, div := hello.Compute(c, b)
+    add, sub, multi, div := newmath.Compute(c, b)
     fmt.Println(res, add, sub, multi, div)
 
     // Perform math operations on two variables - call EnhancedCompute
-    add, sub, multi, div = hello.EnhancedCompute(a, b)
+    add, sub, multi, div = newmath.EnhancedCompute(a, b)
     fmt.Println(res, add, sub, multi, div)
 
 }
@@ -108,10 +110,10 @@ func PointerExample(res http.ResponseWriter, req *http.Request) {
 }
 
 func ClosureExample(res http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(res, "Rahul", hello.PrintNoLine)
+	fmt.Fprintf(res, "Rahul", newprinter.PrintNoLine)
 
-	fmt.Fprintf(res, "Rahul", hello.PrintLine)
-	fmt.Fprintf(res, "Rahul", hello.CustomPrintLine("LOL"))
+	fmt.Fprintf(res, "Rahul", newprinter.PrintLine)
+	fmt.Fprintf(res, "Rahul", newprinter.CustomPrintLine("LOL"))
 }
 
 func TypeSwitchExample(x interface{}) {
@@ -180,7 +182,7 @@ func all(res http.ResponseWriter, req *http.Request) {
 
 	chann := make(chan bool)
 
-    persons := hello.Persons{{"Amanda", "X", 20}, {"Gerry", "Y", 32}, {"John", "Z", 45}}
+    persons := person.Persons{{"Amanda", "X", 20}, {"Gerry", "Y", 32}, {"John", "Z", 45}}
     go func() {
 		persons.BranchingExample()
 		chann <- true
