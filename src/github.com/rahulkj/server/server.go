@@ -3,7 +3,7 @@ package main
 import (
 	"code.google.com/p/log4go"
 	"fmt"
-	"launchpad.net/goyaml"
+//	"launchpad.net/goyaml"
 	"net/http"
 	"os"
 	"github.com/rahulkj/hello"
@@ -30,7 +30,8 @@ func main() {
 	log.AddFilter("stdout", log4go.DEBUG, log4go.NewConsoleLogWriter())
 
 	http.HandleFunc("/", helloThere)
-	http.HandleFunc("/junk", junk)
+	http.HandleFunc("/all", all)
+	http.HandleFunc("/pointer", PointerExample)
 	var port string
 	if port = os.Getenv(PortVar); port == "" {
 		port = "8080"
@@ -43,27 +44,17 @@ func main() {
 
 func helloThere(res http.ResponseWriter, req *http.Request) {
 	// Dump ENV
-	fmt.Fprint(res, "ENV:\n")
-	env := os.Environ()
-	for _, e := range env {
-		fmt.Fprintln(res, e)
-	}
-	fmt.Fprint(res, "\nYAML:\n")
-
-	//Dump some YAML
-	t := T{A: "Foo", B: []int{1, 2, 3}}
-	if d, err := goyaml.Marshal(&t); err != nil {
-		fmt.Fprintf(res, "Unable to dump YAML")
-	} else {
-		fmt.Fprintf(res, "--- t dump:\n%s\n\n", string(d))
-	}
+	fmt.Fprint(res, "Find the source code at : https://github.com/rahulkj/hello.git\n")
+	fmt.Fprint(res, "Try appending the following to this URL: \n", "/all\n", "/pointer\n")
+	fmt.Fprint(res, "Use the following command to push the code to cloudfoundy\n")
+	fmt.Fprint(res, "gcf push server -b http://github.com/ryandotsmith/null-buildpack.git -c ./bin/server \n")
 }
 
-func ConstantUsage(res http.ResponseWriter) {
+func ConstantUsage(res http.ResponseWriter, req *http.Request) {
     fmt.Println(res, PI, Language)
 }
 
-func StructureExample(res http.ResponseWriter) {
+func StructureExample(res http.ResponseWriter, req *http.Request) {
     var p = hello.Person{"Mary", "Dis", 30}
     fmt.Fprintf(res, p.FName, p.LName, p.Age)
 
@@ -80,7 +71,7 @@ func StructureExample(res http.ResponseWriter) {
 
 }
 
-func MathExample(res http.ResponseWriter) {
+func MathExample(res http.ResponseWriter, req *http.Request) {
     // short form of declaring int variables
     a, b, c := 1, 2, 3
 
@@ -99,7 +90,7 @@ func MathExample(res http.ResponseWriter) {
 
 }
 
-func PointerExample(res http.ResponseWriter) {
+func PointerExample(res http.ResponseWriter, req *http.Request) {
     // short form of declaring string variables
     message := "Test hello \n"
     // Declaring a variable of type Person
@@ -116,7 +107,7 @@ func PointerExample(res http.ResponseWriter) {
     fmt.Fprintf(res, message, *greeting)
 }
 
-func ClosureExample(res http.ResponseWriter) {
+func ClosureExample(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(res, "Rahul", hello.PrintNoLine)
 
 	fmt.Fprintf(res, "Rahul", hello.PrintLine)
@@ -175,17 +166,17 @@ func SliceExample() {
 	fmt.Println(s)
 }
 
-func junk(res http.ResponseWriter, req *http.Request) {
+func all(res http.ResponseWriter, req *http.Request) {
 
-    PointerExample(res)
+    PointerExample(res, req)
 
-    MathExample(res)
+    MathExample(res, req)
 
-    StructureExample(res)
+    StructureExample(res, req)
 
-    ConstantUsage(res)
+    ConstantUsage(res, req)
 
-    ClosureExample(res)
+    ClosureExample(res, req)
 
 	chann := make(chan bool)
 
